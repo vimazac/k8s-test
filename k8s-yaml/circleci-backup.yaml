@@ -1,0 +1,40 @@
+version: 2
+jobs:
+  build_and_deploy:
+    docker:
+      - image: wecs/circle-ci-gcloud-node:0.1.0
+    environment:
+      - IMAGE_NAME: "devparker/gateway"
+    working_directory: ~/my_app
+    steps:
+      # Docker is preinstalled, along with docker-compose
+      - checkout
+      - restore_cache:
+          keys:
+            - v1-dependencies-{{ checksum "package.json" }}
+            - v1-dependencies-
+      - run:
+          name: Install dependencies
+          command: npm install
+      - save_cache:
+          paths:
+            - node_modules
+          key: v1-dependencies-{{ checksum "package.json" }}
+      - run: 
+          name: Build
+          command: |
+            docker login -u $DOCKER_USER -p $DOCKER_PASS
+      - run: 
+          name: Docker build and push
+          command: |
+            docker build \
+            --build-arg COMMIT_REF=${CIRCLE_SHA1} \
+            -t ${IMAGE_NAME} .
+workflows:
+  version: 2
+  build_test_deploy:
+    jobs:
+      - build_and_deploy:
+          filters:
+            branches:
+              only: dev2019

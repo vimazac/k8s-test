@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: calculator
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: calculator
+  template:
+    metadata:
+      labels:
+        component: calculator
+    spec:
+      containers:
+        - name: calculator
+          image: vimazac/calculator
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080

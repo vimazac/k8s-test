@@ -1,0 +1,18 @@
+apiVersion: certmanager.k8s.io/v1alpha1
+kind: Certificate
+metadata:
+  name: prd-potentialpark-com-tls
+spec:
+  secretName: prd-potentialpark-com
+  issuerRef:
+    name: letsencrypt-prod
+    kind: ClusterIssuer
+  commonName: prd.potentialpark.com
+  dnsNames:
+    - prd.potentialpark.com
+  acme:
+    config:
+      - http01:
+          ingress: ingress-service
+        domains:
+          - prd.potentialpark.com

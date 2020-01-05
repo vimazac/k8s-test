@@ -1,0 +1,22 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: frontend-web
+  template:
+    metadata:
+      labels: 
+        component: frontend-web
+    spec:
+      imagePullSecrets:
+        - name : regcred
+      containers:
+        - name: frontend-web
+          image: devparker/user-interface:latest
+          ports:
+            - containerPort: 3000
+            

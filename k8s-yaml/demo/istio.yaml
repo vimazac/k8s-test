@@ -1,0 +1,55 @@
+apiVersion: networking.istio.io/v1alpha3
+kind: Gateway
+metadata:
+  name: ingress-gateway-istio
+spec:
+  selector:
+    istio: ingressgateway # use Istio default gateway implementation
+  servers:
+  - port:
+      number: 80
+      name: http
+      protocol: HTTP
+    hosts:
+    - "*" #domain name of the external website
+
+---
+kind: VirtualService
+apiVersion: networking.istio.io/v1alpha3
+metadata:
+  name: frontend-web-vs # "just" a name for this virtualservice
+  namespace: default
+spec:
+  hosts:      # which incoming host are we applying the proxy rules to???
+    - "*" # The Service DNS (ie the regular K8S Service) name that we're applying routing rules to. For a frontend service exposed by ingress, copy the value in the host section of the gateway object definition - usually a Domain Name. 
+  gateways:
+    - ingress-gateway-istio
+  http:
+    - route:
+        - destination:
+            host: frontend-web-cip-service # The Target DNS name - service name
+            subset: frontend-web-original # The name defined in the DestinationRule  
+        #  weight: 100 not needed if there's only one.
+        #- destination:
+        #    host: fleetman-webapp
+        #    subset: experimental
+        #  weight: 0
+---
+kind: DestinationRule  # Defining which pods should be part of each subset
+apiVersion: networking.istio.io/v1alpha3
+metadata:
+  name: fleetman-webapp-dr # This can be anything you like.
+  namespace: default
+spec:
+  host: frontend-web-cip-service # Service name
+  #trafficPolicy:
+  #  loadBalancer:
+  #    consistentHash:
+  #      httpHeaderName: "x-myval"
+  subsets:
+    - labels: # SELECTOR.
+        app: frontend-web # find pods with label "xxx", this is an extra label than the one defined in the spec-host, since the service already filter for a label
+      name: frontend-web-original
+    #- labels:
+    #    version: experimental
+    #  name: experimental

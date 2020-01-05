@@ -1,0 +1,20 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: redis-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: redis-server
+  template:
+    metadata:
+      labels:
+        component: redis-server
+    spec:
+      containers:
+        - name: redis-server
+          image: vimazac/redis-server
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 6379

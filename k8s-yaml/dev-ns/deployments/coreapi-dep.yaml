@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: coreapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: coreapi
+  template:
+    metadata:
+      labels:
+        component: coreapi
+    spec:
+      imagePullSecrets:
+        - name : regcred
+      containers:
+        - name: coreapi
+          image: devparker/core-api:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 8080
+          env:
+            - name: DB_PORT
+              value: '27017'
+            - name: DB_NAME
+              value: talcom
+            - name: DB_HOST
+              valueFrom:
+                secretKeyRef:
+                  name: mongohost
+                  key: MONGO_HOST # this doesn't have to be the same than the name of the env var
+          
+    

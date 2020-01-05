@@ -1,0 +1,32 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: gateway-dep
+spec:
+  selector:
+    matchLabels:
+      component: gateway
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        component: gateway # name other config will use to refer this pod
+    spec:
+      imagePullSecrets:
+        - name : regcred
+      containers:
+        - name: gateway # internal name assigned to this container
+          image: devparker/gateway:29054e0
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+          env:
+            - name: JWT_EXPIRATION
+              value: '12h'
+            - name: COREAPI_HOST
+              value: coreapi-cip-service
+            - name: JWT_KEY
+              valueFrom:
+                secretKeyRef:
+                  name: jwtkey #this comes after generic
+                  key: JWT_KEY # this doesn't have to be the same than the name of the env var, comes after --from-literal

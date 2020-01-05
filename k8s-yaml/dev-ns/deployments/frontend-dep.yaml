@@ -1,0 +1,23 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: frontend-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      component: frontend-web
+  template:
+    metadata:
+      labels: 
+        component: frontend-web # this is the important one. Everyone has to refer to this one
+    spec: # everything belows here is the description of the pod
+      imagePullSecrets:
+        - name : regcred
+      containers:
+        - name: frontend-web
+          image: devparker/user-interface:latest
+          imagePullPolicy: Always
+          ports:
+            - containerPort: 3000
+            

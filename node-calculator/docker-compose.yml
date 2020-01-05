@@ -1,0 +1,12 @@
+# docker compose will do the networking part by stablishing a free connection between all the
+# containers specified in this file
+version: '3'        # specify the version of the docker compose file
+services:           # the services or the containers this docker compose file will manage
+  redis-server:     # the name of the service
+    image: 'redis'  # the route
+    restart: always
+  node-app: 
+    restart: on-failure
+    build: .        #get the current directory app and build it
+    ports:          #specification of ports
+      - "4001:8080"
